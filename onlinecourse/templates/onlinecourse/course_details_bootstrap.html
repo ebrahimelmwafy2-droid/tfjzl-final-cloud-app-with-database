@@ -2,22 +2,38 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{{ course.name }}</title>
+    <title>Course Details</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container mt-5">
-    <h2>Course: {{ course.name }}</h2>
-    <p>{{ course.description }}</p>
-    <h3 class="mt-4">Lessons</h3>
-    <div class="list-group">
-        {% for lesson in course.lesson_set.all %}
-            <div class="list-group-item list-group-item-action">
-                <h5>{{ lesson.title }}</h5>
-                <p>{{ lesson.content }}</p>
+    {% if user.is_authenticated %}
+    </br>
+    <button class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>
+    <div id="exam" class="collapse">
+        <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="POST">
+            {% for question in course.question_set.all %}
+            <div class="card mt-1">
+                <div class="card-header">
+                    <h5>{{ question.content }}</h5>
+                </div>
+                {% csrf_token %}
+                <div class="form-group p-3">
+                    {% for choice in question.choice_set.all %}
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input type="checkbox" name="choice_{{choice.id}}" class="form-check-input"
+                                id="{{choice.id}}" value="{{choice.id}}">{{ choice.content }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-        {% endfor %}
+            {% endfor %}
+            <input class="btn btn-success btn-block mt-3" type="submit" value="Submit">
+        </form>
     </div>
+    {% endif %}
 </div>
 </body>
 </html>
